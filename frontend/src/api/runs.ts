@@ -1,1 +1,1 @@
-import {request} from "./client";export const fetchRuns=()=>request("/runs");export const createRuns=(body:unknown)=>request("/runs","POST",body);
+import {request} from "./client";export const fetchRuns=()=>request("/runs");export const createRuns=(body:unknown)=>request("/runs","POST",body);export const cancelRun=(id:string)=>request("/runs/"+id+"/cancel","POST");export const retryRun=(id:string)=>request("/runs/"+id+"/retry","POST");

@@ -1,4 +1,6 @@
 import json
+from uuid import uuid4
+from datetime import datetime,timezone
 import numpy as np
 from sqlalchemy import select,func
 from src.config.database import initialize,Session
@@ -32,7 +34,9 @@ def seed():
    ident="query-"+q["query_id"]
    if not db.get(QueryPoint,ident):db.add(QueryPoint(id=ident,study_id="demo-study",**q))
   db.commit()
-  if not db.get(KrigingRun,"demo-run"):db.add(KrigingRun(id="demo-run",study_id="demo-study",status="queued",result={},error=""));db.commit();compute(db,"demo-run")
+  if not db.get(KrigingRun,"demo-run"):
+   demo=KrigingRun(id="demo-run",study_id="demo-study",status="queued",result={},error="",attempt=1,active_token=str(uuid4()),attempts_history=[],queued_at=datetime.now(timezone.utc).replace(tzinfo=None))
+   db.add(demo);db.commit();compute(db,"demo-run",demo.active_token)
   if not db.get(FieldReview,"demo-review"):db.add(FieldReview(id="demo-review",run_id="demo-run",action="核对稀疏区与边缘查询的空间方差及变异函数边界；参数和预测锁定，空间随机场方差不当作真实误差。",state="approved",reviewer="admin@spatial.demo"))
   db.commit()
   if not db.get(Report,"demo-report"):db.add(Report(id="demo-report",review_id="demo-review",title="宁泽地块含水空间推断底稿",snapshot={"result":db.get(KrigingRun,"demo-run").result,"action":db.get(FieldReview,"demo-review").action,"reviewer":"admin@spatial.demo"}))
